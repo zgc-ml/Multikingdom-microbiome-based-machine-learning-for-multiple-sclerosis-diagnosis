@@ -43,7 +43,7 @@ data_norm_t <- data_norm_t[rownames(metadata_path), ]
 
 bray_curtis_dist <- vegdist(data_norm_t, method = "bray")
 
-adonis_result <- adonis(bray_curtis_dist ~ ., data = metadata_path[, phenotype_vars], permutations = 9999)
+adonis_result <- adonis(bray_curtis_dist ~ ., data = metadata_path[, phenotype_vars], permutations = 9999, by = "margin")
 
 phenotype_r2 <- adonis_result$aov.tab[1:length(phenotype_vars), "R2"]
 names(phenotype_r2) <- phenotype_vars
@@ -51,12 +51,16 @@ names(phenotype_r2) <- phenotype_vars
 phenotype_p <- adonis_result$aov.tab[1:length(phenotype_vars), "Pr(>F)"]
 names(phenotype_p) <- phenotype_vars
 
+phenotype_p_adj <- p.adjust(phenotype_p, method = "BH")
+names(phenotype_p_adj) <- phenotype_vars
+
 phenotype_r2_pct <- phenotype_r2 * 100
 
 df <- data.frame(
   Phenotype = names(phenotype_r2_pct),
   VarianceExplained = phenotype_r2_pct,
-  p = phenotype_p
+  p = as.numeric(phenotype_p),
+  p_adj = as.numeric(phenotype_p_adj)
 )
 
 df$Phenotype <- factor(
@@ -118,7 +122,7 @@ data_norm_t <- data_norm_t[rownames(metadata_path_diet), ]
 
 bray_curtis_dist <- vegdist(data_norm_t, method = "bray")
 
-adonis_result_diet <- adonis(bray_curtis_dist ~ ., data = metadata_path_diet[, phenotype_vars], permutations = 9999)
+adonis_result_diet <- adonis(bray_curtis_dist ~ ., data = metadata_path_diet[, phenotype_vars], permutations = 9999, by = "margin")
 
 phenotype_r2 <- adonis_result_diet$aov.tab[1:length(phenotype_vars), "R2"]
 names(phenotype_r2) <- phenotype_vars
@@ -126,12 +130,16 @@ names(phenotype_r2) <- phenotype_vars
 phenotype_p <- adonis_result_diet$aov.tab[1:length(phenotype_vars), "Pr(>F)"]
 names(phenotype_p) <- phenotype_vars
 
+phenotype_p_adj <- p.adjust(phenotype_p, method = "BH")
+names(phenotype_p_adj) <- phenotype_vars
+
 phenotype_r2_pct <- phenotype_r2 * 100
 
 df <- data.frame(
   Phenotype = names(phenotype_r2_pct),
   VarianceExplained = phenotype_r2_pct,
-  p = phenotype_p
+  p = as.numeric(phenotype_p),
+  p_adj = as.numeric(phenotype_p_adj)
 )
 
 df$Phenotype <- factor(
